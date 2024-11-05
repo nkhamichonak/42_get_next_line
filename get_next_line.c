@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
+/*   By: natallia <natallia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 16:10:50 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/05 18:00:07 by nkhamich         ###   ########.fr       */
+/*   Updated: 2024/11/05 22:10:58 by natallia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ char	*extract_remainder(char *stored_data, char *newline, bool *error)
 	if (remainder == NULL)
 	{
 		*error = true;
+		free (stored_data);
 		return (NULL);
 	}
 	free (stored_data);
@@ -86,22 +87,24 @@ static char	*read_and_store_data(int fd, char *stored_data)
 	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (buffer == NULL)
 		return (NULL);
-	bytes_read = 1;
-	while (!find_newline(stored_data) && bytes_read > 0)
+	bytes_read = 0;
+	while (!find_newline(stored_data))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read == -1 || bytes_read == 0)
+		if (bytes_read <= 0)
 		{
-			free (buffer);
-			if (bytes_read == 0)
-				return (stored_data);
-			else
+			free(buffer);
+			if (bytes_read == -1)
+			{
+				free(stored_data);
 				return (NULL);
+			}
+			return (stored_data);
 		}
 		buffer[bytes_read] = '\0';
 		stored_data = append_and_free(stored_data, buffer);
 	}
-	free (buffer);
+	free(buffer);
 	return (stored_data);
 }
 
@@ -122,15 +125,13 @@ char	*get_next_line(int fd)
 	if (current_line == NULL)
 	{
 		free (stored_data);
+		stored_data = NULL;
 		return (NULL);
 	}
 	error_flag = 0;
 	stored_data = extract_remainder(stored_data, newline, &error_flag);
-	if (stored_data == NULL && error_flag)
-	{
-		free (stored_data);
+	if (error_flag)
 		return (NULL);
-	}
 	return (current_line);
 }
 
@@ -145,7 +146,7 @@ char	*get_next_line(int fd)
 // 	int		fd3;
 // 	fd1 = open("tests/test.txt", O_RDONLY);
 // 	fd2 = open("tests/test2.txt", O_RDONLY);
-// 	fd3 = open("tests/test3.txt", O_RDONLY);
+// 	fd3 = open("multiple_nl.txt", O_RDONLY);
 // 	i = 1;
 // 	while (i < 7)
 // 	{

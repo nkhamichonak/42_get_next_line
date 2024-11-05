@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
+/*   By: natallia <natallia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 16:11:26 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/05 13:54:59 by nkhamich         ###   ########.fr       */
+/*   Updated: 2024/11/05 22:04:04 by natallia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ char	*ft_strdup(const char *s)
 	size_t	i;
 	char	*dest;
 
+	if (!s)
+		return (NULL);
 	dest = malloc((ft_strlen(s) + 1) * sizeof(char));
 	if (dest == NULL)
 		return (NULL);
