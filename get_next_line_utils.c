@@ -3,23 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natallia <natallia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 16:11:26 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/05 22:04:04 by natallia         ###   ########.fr       */
+/*   Updated: 2024/11/06 17:56:25 by nkhamich         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
 
+char	*ft_free(char **str)
+{
+	if (*str)
+	{
+		free(*str);
+		*str = NULL;
+	}
+	return (NULL);
+}
+
 char	*ft_strdup(const char *s)
 {
 	size_t	i;
 	char	*dest;
 
-	if (!s)
-		return (NULL);
 	dest = malloc((ft_strlen(s) + 1) * sizeof(char));
 	if (dest == NULL)
 		return (NULL);
@@ -73,3 +81,5 @@ void	copy_string(char *dest, const char *src)
 	}
 	dest[i] = '\0';
 }
+
+

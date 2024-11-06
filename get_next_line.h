@@ -6,7 +6,7 @@
 /*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 16:11:42 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/05 16:55:46 by nkhamich         ###   ########.fr       */
+/*   Updated: 2024/11/06 17:51:03 by nkhamich         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,5 +26,6 @@ size_t		ft_strlen(const char *str);
 char		*find_newline(char *str);
 void		copy_string(char *dest, const char *src);
 char		*ft_strdup(const char *s);
+char		*ft_free(char **str);
 
 #endif
