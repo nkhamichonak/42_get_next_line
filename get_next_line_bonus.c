@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_bonus.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natallia <natallia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 19:53:10 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/06 21:39:07 by natallia         ###   ########.fr       */
+/*   Updated: 2024/11/07 16:56:19 by nkhamich         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,16 +38,25 @@ char	*extract_line(char *stored_data, char *newline)
 char	*extract_remainder(char *stored_data, char *newline, bool *error)
 {
 	char	*remainder;
+	size_t	i;
 
 	if (newline == NULL || *(newline + 1) == '\0')
-		return (ft_free(&stored_data));
-	remainder = ft_strdup(newline + 1);
+		return (free(stored_data), NULL);
+	remainder = malloc((ft_strlen(newline + 1) + 1) * sizeof(char));
 	if (remainder == NULL)
 	{
 		*error = true;
-		return (ft_free(&stored_data));
+		return (free(stored_data), NULL);
 	}
-	ft_free(&stored_data);
+	i = 0;
+	while (newline[1 + i])
+	{
+		remainder[i] = newline[1 + i];
+		i++;
+	}
+	remainder[i] = '\0';
+	free(stored_data);
+	stored_data = NULL;
 	return (remainder);
 }
 
@@ -61,11 +70,11 @@ static char	*append_and_free(char *stored_data, char *buffer)
 	buffer_len = ft_strlen(buffer);
 	new_data = malloc((stored_len + buffer_len + 1) * sizeof(char));
 	if (new_data == NULL)
-		return (ft_free(&stored_data));
+		return (free(stored_data), NULL);
 	if (stored_data)
 	{
 		copy_string(new_data, stored_data);
-		ft_free(&stored_data);
+		free(stored_data);
 	}
 	copy_string(new_data + stored_len, buffer);
 	return (new_data);
@@ -78,99 +87,53 @@ static char	*read_and_store_data(int fd, char *stored_data)
 
 	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (buffer == NULL)
-		return (ft_free(&stored_data));
+		return (free(stored_data), NULL);
 	bytes_read = 0;
-	while ((stored_data && !find_newline(stored_data)) || !stored_data)
+	while (!find_newline(stored_data))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read <= 0)
 		{
-			ft_free(&buffer);
+			free(buffer);
 			if (bytes_read == -1)
-				return (ft_free(&stored_data));
+				return (free(stored_data), NULL);
 			else
 				return (stored_data);
 		}
 		buffer[bytes_read] = '\0';
 		stored_data = append_and_free(stored_data, buffer);
 		if (stored_data == NULL)
-			return (ft_free(&buffer));
+			return (free(buffer), NULL);
 	}
-	ft_free (&buffer);
+	free (buffer);
 	return (stored_data);
-}
-
-static t_fd_list	*find_fd_node(t_fd_list **head, int fd)
-{
-	t_fd_list	*current;
-
-	current = *head;
-	while (current)
-	{
-		if (current->fd == fd)
-			return (current);
-		current = current->next;
-	}
-	current = malloc(sizeof(t_fd_list));
-	if (!current)
-		return (NULL);
-	current->fd = fd;
-	current->stored_data = NULL;
-	current->next = *head;
-	*head = current;
-	return (current);
-}
-
-static char	*remove_fd_node(t_fd_list **head, int fd)
-{
-	t_fd_list	*current;
-	t_fd_list	*prev;
-
-	current = *head;
-	prev = NULL;
-	while (current)
-	{
-		if (current->fd == fd)
-		{
-			if (prev)
-				prev->next = current->next;
-			else
-				*head = current->next;
-			ft_free(&current->stored_data);
-			free(current);
-			return (NULL);
-		}
-		prev = current;
-		current = current->next;
-	}
-	return (NULL);
 }
 
 char	*get_next_line(int fd)
 {
 	static t_fd_list	*fd_list;
-	t_fd_list			*current_node;
+	t_fd_list			*node;
 	char				*current_line;
 	char				*newline;
-	bool				error_flag;
+	bool				error;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE > INT_MAX)
 		return (NULL);
-	current_node = find_fd_node(&fd_list, fd);
-	if (!current_node)
+	node = find_fd_node(&fd_list, fd);
+	if (!node)
 		return (NULL);
-	current_node->stored_data = read_and_store_data(fd, current_node->stored_data);
-	if (current_node->stored_data == NULL)
+	node->stored_data = read_and_store_data(fd, node->stored_data);
+	if (node->stored_data == NULL)
 		return (remove_fd_node(&fd_list, fd));
-	newline = find_newline(current_node->stored_data);
-	current_line = extract_line(current_node->stored_data, newline);
+	newline = find_newline(node->stored_data);
+	current_line = extract_line(node->stored_data, newline);
 	if (current_line == NULL)
 		return (remove_fd_node(&fd_list, fd));
-	error_flag = 0;
-	current_node->stored_data = extract_remainder(current_node->stored_data, newline, &error_flag);
-	if (error_flag)
-		return (remove_fd_node(&fd_list, fd), ft_free(&current_line));
-	if (current_node->stored_data == NULL)
+	error = 0;
+	node->stored_data = extract_remainder(node->stored_data, newline, &error);
+	if (error)
+		return (free(current_line), remove_fd_node(&fd_list, fd));
+	if (node->stored_data == NULL)
 		remove_fd_node(&fd_list, fd);
 	return (current_line);
 }

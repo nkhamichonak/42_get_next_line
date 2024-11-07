@@ -3,41 +3,59 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natallia <natallia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 19:46:47 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/06 19:52:42 by natallia         ###   ########.fr       */
+/*   Updated: 2024/11/07 11:56:54 by nkhamich         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-char	*ft_free(char **str)
+t_fd_list	*find_fd_node(t_fd_list **head, int fd)
 {
-	if (*str)
+	t_fd_list	*current;
+
+	current = *head;
+	while (current)
 	{
-		free(*str);
-		*str = NULL;
+		if (current->fd == fd)
+			return (current);
+		current = current->next;
 	}
-	return (NULL);
+	current = malloc(sizeof(t_fd_list));
+	if (!current)
+		return (NULL);
+	current->fd = fd;
+	current->stored_data = NULL;
+	current->next = *head;
+	*head = current;
+	return (current);
 }
 
-char	*ft_strdup(const char *s)
+char	*remove_fd_node(t_fd_list **head, int fd)
 {
-	size_t	i;
-	char	*dest;
+	t_fd_list	*current;
+	t_fd_list	*prev;
 
-	dest = malloc((ft_strlen(s) + 1) * sizeof(char));
-	if (dest == NULL)
-		return (NULL);
-	i = 0;
-	while (s[i])
+	current = *head;
+	prev = NULL;
+	while (current)
 	{
-		dest[i] = s[i];
-		i++;
+		if (current->fd == fd)
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				*head = current->next;
+			free(current->stored_data);
+			free(current);
+			return (NULL);
+		}
+		prev = current;
+		current = current->next;
 	}
-	dest[i] = '\0';
-	return (dest);
+	return (NULL);
 }
 
 size_t	ft_strlen(const char *str)
