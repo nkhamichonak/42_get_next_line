@@ -6,7 +6,7 @@
 /*   By: natallia <natallia@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 16:10:50 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/07 21:10:30 by natallia         ###   ########.fr       */
+/*   Updated: 2024/11/07 21:53:41 by natallia         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ static char	*read_and_store_data(int fd, char *stored_data)
 		stored_data = append_and_free(stored_data, buffer);
 		if (stored_data == NULL)
 			return (NULL);
+		if (find_newline(stored_data))
+			break ;
 	}
 	return (stored_data);
 }
