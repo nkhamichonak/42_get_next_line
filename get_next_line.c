@@ -6,11 +6,13 @@
 /*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 16:10:50 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/07 14:56:13 by nkhamich         ###   ########.fr       */
+/*   Updated: 2024/11/07 19:29:12 by nkhamich         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <stdio.h>
+#include <fcntl.h>
 
 char	*extract_line(char *stored_data, char *newline)
 {
@@ -80,14 +82,18 @@ static char	*read_and_store_data(int fd, char *stored_data)
 	if (buffer == NULL)
 		return (ft_free(&stored_data));
 	bytes_read = 0;
-	while (!find_newline(stored_data))
+	printf("Stored: %s", stored_data);
+	while (find_newline(stored_data) == NULL)
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read <= 0)
 		{
 			ft_free(&buffer);
 			if (bytes_read == -1)
+			{
+				puts("HI MOM");
 				return (ft_free(&stored_data));
+			}
 			else
 				return (stored_data);
 		}
@@ -102,7 +108,7 @@ static char	*read_and_store_data(int fd, char *stored_data)
 
 char	*get_next_line(int fd)
 {
-	static char		*stored_data;
+	static char		*stored_data = NULL;
 	char			*current_line;
 	char			*newline;
 	bool			error_flag;
@@ -121,4 +127,26 @@ char	*get_next_line(int fd)
 	if (error_flag)
 		return (ft_free(&current_line));
 	return (current_line);
+}
+
+
+int	main(void)
+{
+	char *tmp;
+
+	int	fd = open("get_next_line.h", O_RDONLY);
+	tmp = get_next_line(fd);
+	printf("1: %s", tmp);
+	free(tmp);
+		tmp = get_next_line(fd);
+	printf("2: %s", tmp);
+	free(tmp);
+	fflush(stdout);
+	if (close(fd) != -1)
+	{
+		tmp = get_next_line(fd);
+		printf("3: %s", tmp);
+		free(tmp);
+	}
+	return (0);
 }
