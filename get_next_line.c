@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: natallia <natallia@student.42.fr>          +#+  +:+       +#+        */
+/*   By: nkhamich <nkhamich@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/02 16:10:50 by natallia          #+#    #+#             */
-/*   Updated: 2024/11/07 21:53:41 by natallia         ###   ########.fr       */
+/*   Updated: 2024/11/07 14:56:13 by nkhamich         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,15 +73,19 @@ static char	*append_and_free(char *stored_data, char *buffer)
 
 static char	*read_and_store_data(int fd, char *stored_data)
 {
-	char	buffer[BUFFER_SIZE + 1];
+	char	*buffer;
 	int		bytes_read;
 
+	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	if (buffer == NULL)
+		return (ft_free(&stored_data));
 	bytes_read = 0;
-	while (INFINITY)
+	while (!find_newline(stored_data))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read <= 0)
 		{
+			ft_free(&buffer);
 			if (bytes_read == -1)
 				return (ft_free(&stored_data));
 			else
@@ -90,16 +94,15 @@ static char	*read_and_store_data(int fd, char *stored_data)
 		buffer[bytes_read] = '\0';
 		stored_data = append_and_free(stored_data, buffer);
 		if (stored_data == NULL)
-			return (NULL);
-		if (find_newline(stored_data))
-			break ;
+			return (ft_free(&buffer));
 	}
+	ft_free (&buffer);
 	return (stored_data);
 }
 
 char	*get_next_line(int fd)
 {
-	static char		*stored_data = NULL;
+	static char		*stored_data;
 	char			*current_line;
 	char			*newline;
 	bool			error_flag;
