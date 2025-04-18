@@ -5,8 +5,11 @@ This project is about writing a function in C that reads and returns one line at
 ## Status
 
 ✅ Validated: 08.11.2024.
+
 🎓 Grade: 125/100.
+
 💧 Leak-free on [francinette](https://github.com/xicodomingues/francinette) as of November 2024.
+
 🚦 Compliant with [42 Norm](#note) rules.
 
 ## Usage
