@@ -58,7 +58,7 @@ cc -D BUFFER_SIZE=42 main.c get_next_line.c get_next_line_utils.c -o gnl
 ./gnl
 ```
 
-### Bonus:
+## Bonus:
 
 The bonus part uses linked lists to handle multiple file descriptors in parallel, preserving the reading state of each without mixing up the output.
 
